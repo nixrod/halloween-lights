@@ -8,16 +8,14 @@ It consists of four components:
 - A small pumpkin with a motion sensor located near the street, controlled by an esp8266
 
 - A bigger pumpkin with a ws2812 led ring, controlled by an esp8266
-
-  [Add picture here]
+![Pumpkin](https://raw.githubusercontent.com/nixrod/halloween-lights/master/img/pumpkin.jpeg)
 
 - A 5m led strip placed on top of my balcony also controlled by an esp8266
 
 - A server running node-RED and an mqtt broker tying everything together. I also
 built a small Node-RED dashboard, through with I could manually interact with the
 installation
-
-  [Add Screenshot]
+![Dashboard Screenshot](https://raw.githubusercontent.com/nixrod/halloween-lights/master/img/dashboard.png)
 
 If the motion sensor is not activated, the leds show a calm fire animation,
 lighting the balcony and the big pumpkin. If the sensor is triggered the animation
