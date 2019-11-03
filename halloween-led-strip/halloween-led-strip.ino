@@ -10,7 +10,7 @@
 #define LED_PIN     D2
 #define NUM_LEDS    300
 
-#define BRIGHTNESS  200
+#define BRIGHTNESS  255
 #define FRAMES_PER_SECOND 60
 
 CRGB leds[NUM_LEDS];
@@ -27,7 +27,7 @@ void setup() {
   Serial.begin(115200);
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
   FastLED.setBrightness( BRIGHTNESS );
-  
+
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
@@ -79,13 +79,26 @@ void callback(char* topic, byte* message, unsigned int length) {
     CRGB medVio = CRGB(0xC71585);
     CRGB pink  = CRGB(0xFF1493);
     CRGB lightPink  = CRGB(0xFF69B4);
-    
+
     currentPalette = CRGBPalette16(
                          lightPink,  lightPink,  pink,  pink,
                          medVio, medVio, purple,  purple,
                          lightPink,  lightPink,  pink,  pink,
                          medVio, medVio, purple,  purple );
-  } else if (String(topic) == "off") {
+  } else if (String(topic) == "green") {
+    CRGB darkGreen = CRGB(0x006400);
+    CRGB medGreen = CRGB(0x228B22);
+    CRGB green  = CRGB(0x008000);
+    CRGB lightGreen  = CRGB(0x7FFF00);
+
+    currentPalette = CRGBPalette16(
+                         lightGreen,  lightGreen,  green,  green,
+                         medGreen, medGreen, darkGreen,  darkGreen,
+                         lightGreen,  lightGreen,  green,  green,
+                         medGreen, medGreen, darkGreen,  darkGreen );
+  }
+
+  else if (String(topic) == "off") {
     Serial.println("Turning off");
     theme = "off";
   }
@@ -97,11 +110,12 @@ void reconnect() {
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
-    if (client.connect("LedStrip")) {
+    if (client.connect("Upstairs_Led_Strip")) {
       Serial.println("connected");
       client.subscribe("fire");
       client.subscribe("horror");
       client.subscribe("pink");
+      client.subscribe("green");
       client.subscribe("off");
     } else {
       Serial.print("failed, rc=");
@@ -118,17 +132,17 @@ void loop() {
     reconnect();
   }
   if(!client.loop()) {
-    client.connect("LedStrip");
+    client.connect("Upstairs_Led_Strip");
   }
 
-  FastLED.show();  
+  FastLED.show();
   // insert a delay to keep the framerate modest
-  FastLED.delay(1000/FRAMES_PER_SECOND); 
-  
-  if (theme == "horror") {  
+  FastLED.delay(1000/FRAMES_PER_SECOND);
+
+  if (theme == "horror") {
     // do some periodic updates
     EVERY_N_MILLISECONDS( 20 ) { gHue++; }
-  
+
     uint8_t BeatsPerMinute = 255;
     uint8_t beat = beatsin8( BeatsPerMinute, 64, 255);
     for( int i = 0; i < NUM_LEDS; i++) { //9948
@@ -139,28 +153,33 @@ void loop() {
   } else if (theme == "pink") {
     static uint8_t startIndex = 0;
     startIndex = startIndex + 1; /* motion speed */
-      
+
     FillLEDsFromPaletteColors( startIndex);
     addGlitter(160);
-    
+
+  } else if (theme == "green") {
+    static uint8_t startIndex = 0;
+    startIndex = startIndex + 1; /* motion speed */
+
+    FillLEDsFromPaletteColors( startIndex);
   } else if (theme == "off") {
     fill_solid( leds, NUM_LEDS, CRGB::Black);
   }
-  
- 
+
+
 }
 
 void FillLEDsFromPaletteColors( uint8_t colorIndex)
 {
     uint8_t brightness = 255;
-    
+
     for( int i = 0; i < NUM_LEDS; i++) {
         leds[i] = ColorFromPalette( currentPalette, colorIndex, brightness, LINEARBLEND);
         colorIndex += 3;
     }
 }
 
-void addGlitter( fract8 chanceOfGlitter) 
+void addGlitter( fract8 chanceOfGlitter)
 {
   if( random8() < chanceOfGlitter) {
     leds[ random16(NUM_LEDS) ] += CRGB::White;
@@ -175,12 +194,12 @@ void Fire2012()
     for( int i = 0; i < NUM_LEDS; i++) {
       heat[i] = qsub8( heat[i],  random8(0, ((COOLING * 10) / NUM_LEDS) + 2));
     }
-  
+
     // Step 2.  Heat from each cell drifts 'up' and diffuses a little
     for( int k= NUM_LEDS - 1; k >= 2; k--) {
       heat[k] = (heat[k - 1] + heat[k - 2] + heat[k - 2] ) / 3;
     }
-    
+
     // Step 3.  Randomly ignite new 'sparks' of heat near the bottom
     if( random8() < SPARKING ) {
       int y = random8(7);
