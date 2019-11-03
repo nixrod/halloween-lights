@@ -8,7 +8,7 @@ It consists of four components:
 - A small pumpkin with a motion sensor located near the street, controlled by an esp8266
 
 - A bigger pumpkin with a ws2812 led ring, controlled by an esp8266
-![Pumpkin](https://raw.githubusercontent.com/nixrod/halloween-lights/master/img/pumpkin.jpeg)
+![Pumpkin](https://raw.githubusercontent.com/nixrod/halloween-lights/master/img/pumpkin.png)
 
 - A 5m led strip placed on top of my balcony also controlled by an esp8266
 
